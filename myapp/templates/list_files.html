@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block head%}
+<!-- 如果没有引用以下文件，请去掉此注释 -->
+<!-- <link href="https://magicbox.bk.tencent.com/static_api/v3/bk/css/bk.css" rel="stylesheet">
+<link href="https://magicbox.bk.tencent.com/static_api/v3/assets/artDialog-6.0.4/css/ui-dialog.css" rel="stylesheet">
+<script src="https://magicbox.bk.tencent.com/static_api/v3/assets/js/jquery-1.10.2.min.js"></script>
+<script src="https://magicbox.bk.tencent.com/static_api/v3/assets/artDialog-6.0.4/dist/dialog-min.js"></script> -->
+<!-- <style type="text/css">
+    .modal-dialog{position: absolute; top: 0; bottom: 0; left: 0; right: 0; width:800px}
+    .modal-content{overflow-y: scroll; position: absolute; top: 0; bottom: 0; width:100%;}
+    .modal-body{overflow-y: scroll; position: absolute; top: 55px; bottom: 65px; width:100%;}
+    .modal-header .close{margin-right: 15px;}
+    .modal-footer{position: absolute; width:100%; bottom: 0;}
+</style> -->
+{% endblock %}
+
+{% block page_content %}
+<div class="page-content">
+    <div class="bk-panel bk-panel-title-btns">
+        <div class="bk-panel-header p25" role="tab">
+            <div class="panel-title">文件列表</div>
+        </div>
+        <table class="bk-table has-table-bordered has-table-hover">
+            <thead>
+                <tr>
+                    <!-- <th style="width:450px;">主机ID</th>
+                    <th style="width:20%;">主机名</th> -->
+                    <th>ID</th>
+                    <th>上传路径</th>
+                    <th>存储类型</th>
+                    <th>是否可执行</th>
+                    <th>结果保存路径</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in record %}
+                <tr>
+                    <td>{{ i.id }}</td>
+                    <td>{{ i.input_path }}</td>
+                    <td>{{ i.storage_type }}</td>
+                    <td>{{ i.is_executable }}</td>
+                    <td>{{ i.output_path }}</td>
+                    <td><button class="king-btn king-info" data-code="2">执行</button></td>
+                    <!-- <td><button class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">详情</button></td> -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("button").click(function(){
+            var row = $(this).closest("tr")
+            var upload_id = row.find(">td").eq(0).text();
+            var filename = row.find(">td").eq(1).text();
+            console.log(upload_id);
+            console.log(filename);
+            $.ajax({
+                url: "/myapp/api/v1/execute",
+                type: "POST",
+                data: {
+                    "storage_id": upload_id,
+                    "filename": filename,
+                },
+                dataType: "json",
+                // success
+                success: function (data) {
+                    var code = data.code
+                    var msg = data.message
+                    if (code==200){
+                        msg = "创建成功！"
+                        // console.log(data.data.task_id)
+                        console.log(msg);
+                        alert(msg);
+                    }else{
+                        console.log(msg);
+                        alert(msg);
+                    }
+                },
+                // error
+                error: function (xhr, errmsg, err) {
+                    alert("接口调用失败")
+                }
+            });
+        });
+    })
+</script>
+{% endblock %}
